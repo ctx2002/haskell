@@ -14,6 +14,9 @@ infix 2 <+>
 (<+>) :: Bool -> Bool -> Bool
 x <+> y = x /= y
 
+allT p = True
+allF p = False
+
 valid1 :: (Bool -> Bool) -> Bool
 valid1 bf = bf True && bf False
 
@@ -53,4 +56,20 @@ logEquiv1 bf1 bf2 = and [bf1 p <=> bf2 p | p<-[True, False]]
 logEquiv2 :: (Bool->Bool->Bool) -> (Bool->Bool->Bool) -> Bool
 logEquiv2 bf1 bf2 = and [bf1 p q <=> bf2 p q | p<-[True,False], q<-[True, False]]
 
+logEquiv3 :: (Bool -> Bool -> Bool -> Bool) -> (Bool -> Bool -> Bool -> Bool) -> Bool
+logEquiv3 bf1 bf2 = and [bf1 p q r <=> bf2 p q r | p<-[True,False],q<-[True,False],r<-[True,False]]
 
+test0 = logEquiv1 (\ p -> not  (allF p)) (\ p -> allT p)
+test01 = logEquiv1 (\ p -> not (allT p)) (\ p -> allF p)
+test02 = logEquiv1 (\ p -> p ==> allF p) (\ p -> not p)
+-- test1 = logEquiv1 id (\ p -> not (not p))
+test1 = logEquiv1 id (not . not)
+test2a = logEquiv1 id (\p -> p && p)
+test2b = logEquiv1 id (\p -> p || p)
+test3a = logEquiv2 (\ p q -> p ==> q) (\ p q -> not p || q)
+test3b = logEquiv2 (\ p q -> not (p ==> q)) (\ p q -> p && not q)
+test4a = logEquiv2 (\ p q -> not p ==> not q) (\ p q -> q ==> p)
+test4b = logEquiv2 (\ p q -> p ==> not q) (\ p q -> q ==> not p)
+test4c = logEquiv2 (\ p q -> not p ==> q) (\ p q -> not q ==> p)
+test5a = logEquiv2 (\ p q -> p<=>q) (\ p q -> (p==>q) && (q==>p))
+test5b = logEquiv2 (\ p q -> p<=>q) (\ p q -> (p && q) || (not q && not p))
