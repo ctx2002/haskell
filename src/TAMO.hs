@@ -1,6 +1,7 @@
 module TAMO (
     (==>), (<+>), (<=>)
 )where
+import           Data.Char
 
 infix 1 ==>
 (==>) :: Bool -> Bool -> Bool
@@ -73,3 +74,35 @@ test4b = logEquiv2 (\ p q -> p ==> not q) (\ p q -> q ==> not p)
 test4c = logEquiv2 (\ p q -> not p ==> q) (\ p q -> not q ==> p)
 test5a = logEquiv2 (\ p q -> p<=>q) (\ p q -> (p==>q) && (q==>p))
 test5b = logEquiv2 (\ p q -> p<=>q) (\ p q -> (p && q) || (not q && not p))
+
+-- You can eta-reduce blowupCreditCardNumber
+blowupCreditCardNumber :: String -> [(Int,Char)]
+blowupCreditCardNumber  = zip [1..]
+-- blowupCreditCardNumber creditCardNumber = zip [1..] creditCardNumber
+
+creditCardDouble :: [(Int,Char)] -> [Int]
+--creditCardDouble [] = []
+--creditCardDouble ((index,digit):rest)
+--    | even index = (numberDoubleToList ((*2) $ digitToInt digit)) ++ creditCardDouble rest
+--    | otherwise = digitToInt digit : creditCardDouble rest
+
+creditCardDouble = concatMap foo where
+  foo (index, digit) | even index = numberDoubleToList $ (*2) $ digitToInt digit
+                     | otherwise = [digitToInt digit]
+
+
+numberDoubleToList:: Int -> [Int]
+numberDoubleToList = map digitToInt . show
+--numberDoubleToList number
+--    | number > 9 = map digitToInt (show number)
+--    | otherwise  = [number]
+
+creditCardReminder :: [Int] -> Int
+creditCardReminder xs = sum xs `mod` 10
+
+isCreditCardNumber :: String -> Bool
+isCreditCardNumber = (==0) . creditCardReminder . creditCardDouble . blowupCreditCardNumber . reverse
+
+-- isCreditCardNumber = (==0) . (`mod` 10) . sum . concatMap (digitToInt . show) . zipWith (*) (cycle [1, 2]) . map digitToInt . reverse
+
+

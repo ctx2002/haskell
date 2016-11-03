@@ -28,4 +28,5 @@ executable command_line
   main-is:          Main.hs
   build-depends:
       base >= 4 && <= 5,
-      app
+      app,
+      containers
