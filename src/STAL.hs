@@ -1,4 +1,5 @@
 module STAL
+
 (splitList)
 where
 import           Data.List
@@ -62,3 +63,15 @@ split' xs firstNth len |  firstNth < len = (take firstNth xs, drop firstNth xs) 
                        | otherwise = []
 
 
+naturals = [0..]
+evens1 = [n | n <- naturals , even n]
+odd1 = [n | n <- naturals , odd n]
+even2 = [ 2*n | n <- naturals]
+small_squares1 = [n^2 | n <- enumFromTo 0 999]
+
+run:: Integer -> [Integer]
+run n
+  | n < 1 = error "argument not positive"
+  | n == 1 = [1]
+  | even n = n : run (div n 2)
+  | odd n = n : run (3*n + 1)
