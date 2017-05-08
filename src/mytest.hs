@@ -36,4 +36,35 @@ data CreditCard = CreditCard {
     secureNumber :: CreditCardSecureNumber String
 } deriving Show
 
+myfib :: [Integer] -> Integer -> Integer
+myfib accumulator n | n == 0 = head  accumulator
+           | n == 1 = last accumulator
+           | otherwise = myfib [last accumulator , sum accumulator] (n-1)
+
+myfib1 :: Integer -> Integer -> Integer -> Integer
+myfib1 firstNumer secondNumber index | index == 0 = firstNumer
+    | index == 1 = secondNumber
+    | otherwise = myfib1 secondNumber (firstNumer+secondNumber) (index-1)
+
+exFib :: Integer -> Integer
+exFib n | n < 0 = error "Negative number."
+        | otherwise = myfib1 0 1 n
+
+expense :: Float -> Float
+expense weight | 0 < weight && weight <= 60 = weight * 0.1
+    | 60 < weight && weight <=120 = weight * 0.2
+    | 120 < weight && weight <= 160 = weight * 0.3
+    | 160 < weight && weight <= 220 = weight * 0.4
+    | otherwise = weight * 0.5
+
+feq :: Float -> Float -> Bool
+-- compare 2 floats, we can understand as x approching y
+-- which means sequence x use y as limit
+feq x y = abs(x - y) < 1e-6
+
+lione :: Float -> Float
+lione x = sin x + cos x
+
+
+
 
