@@ -3,6 +3,7 @@ module TAMO (
 )where
 import           Data.Char
 
+-- defind ==> with precedence of 1 and Non-associative, smaller number means lower precedence
 infix 1 ==>
 (==>) :: Bool -> Bool -> Bool
 x ==> y = not x || y
