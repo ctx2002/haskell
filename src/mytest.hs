@@ -65,6 +65,18 @@ feq x y = abs(x - y) < 1e-6
 lione :: Float -> Float
 lione x = sin x + cos x
 
+cn :: Float -> Float
+cn n = n / (3**n)
 
+sn :: Float -> Float
+sn x = 1 / ((3 * x) + 1)
+
+bn :: Float -> Float
+bn n = ((3*n)+1) / ((4*n)-1)
+dn :: Float -> Float
+dn n = sin( (n*3.14159) / 4.0 )
+
+en :: Float -> Float
+en n = cos ((n*3.14159)/3)
 
 
