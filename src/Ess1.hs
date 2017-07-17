@@ -1,4 +1,7 @@
 module Ess1 where
+
+    
+
     isN :: Integer -> Bool
     isN n | n == 0 = True
            | n < 0 = False
