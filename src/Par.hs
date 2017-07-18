@@ -3,18 +3,22 @@ module Par
 where
     import           Data.Char
 
-    data Token = TokenNum Int | TokenAlph String deriving Show
+    data Token = TokenSpace | TokenNum Double  | TokenAlph String deriving Show
 
     tokenize :: String -> [Token]
     tokenize [] = []
     tokenize (s:rest) 
         | isDigit s = 
-            let p = numberStr (s:rest)
+            let p = span isDigit (s:rest)
             in
             TokenNum (read (fst p)) : tokenize (snd p)
-        | otherwise = 
-            let p = idStr (s:rest) in 
+        | isAlpha s = 
+            let p = span isAlpha(s:rest) in 
             TokenAlph (fst p) : tokenize (snd p)
+        | isSpace s = 
+            let p = span isSpace(s:rest) in 
+            TokenSpace : tokenize (snd p)
+        | otherwise = []
 
     numberStr :: String -> (String, String)
     numberStr [] = error "unable to convert a empty string to a double"
