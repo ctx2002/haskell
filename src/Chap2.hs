@@ -2,7 +2,7 @@ module Chap2 (
 
     ) where
 
-
+import           Data.Char
 -- specification
 -- we use haskell's number presentation
 
@@ -39,6 +39,22 @@ bigit n base =
        if r == 0 then [0, q] else r: bigit q base
 ddouble :: Integer -> Integer
 ddouble n = n * 2
+
+-- turn first letter to upper case for a string of words
+modernise :: String -> String
+modernise str = let p = words str
+    in
+        unwords (moderniseY p)
+
+
+moderniseY :: [String] -> [String]
+moderniseY []   = []
+moderniseY rest = map capitalized rest
+
+capitalized :: String -> String
+capitalized (head:tail) = toUpper head : tail
+capitalized []          = []
+
 
 
 

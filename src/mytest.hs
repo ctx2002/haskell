@@ -79,4 +79,22 @@ dn n = sin( (n*3.14159) / 4.0 )
 en :: Float -> Float
 en n = cos ((n*3.14159)/3)
 
+nats = iterate (+1) 1
+
+freeDrop :: Int -> [Double]
+freeDrop howMany = [((4*n)+1) / (2*n) | n <- take howMany nats]
+
+
+
+triArea :: Int -> [Float]
+triArea 0 = [0.0]
+triArea n = triAreaZ n 1
+    where
+        triAreaZ n top | top > n = []
+            | otherwise =
+            let left = fromIntegral (top-1) / fromIntegral n
+                right = (fromIntegral top/ fromIntegral n) ** 2
+                height = (1 / fromIntegral n)
+            in
+                (((left + right)*height) / 2) : triAreaZ n (top+1)
 
