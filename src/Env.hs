@@ -76,9 +76,15 @@ tokenizer (x:xs) | x == '=' = TEqual : tokenizer xs
                  | x == '-' = TMinus : tokenizer xs
                  | x == ' ' = tokenizer xs
                  | x == '\n' = tokenizer xs
-                 | otherwise = let t = multiCharToken (x:xs) []
+                 | otherwise = let t = getToken (x:xs)
                      in
-                        strtoken (snd t) : tokenizer (fst t)
+                        strtoken (fst t) : tokenizer (snd t)
+
+getToken :: String -> (String, String)
+getToken []     = ([], [])
+getToken (x:xs) | isDigit x = span isDigit (x:xs)
+    | isAlpha x = span isAlpha (x:xs)
+    | otherwise = (x:xs , [])
 
 multiCharToken :: String -> String -> (String, String)
 multiCharToken [] accu     = ([], accu)
