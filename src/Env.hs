@@ -128,8 +128,8 @@ parseLet toks = case lookahead toks of
     TZero -> parseLet (accept toks)
     TIf -> parseIf (accept toks)
     TLet -> parseL (accept toks)
-    TIdent x -> (VarExpr x, (accept toks))
-    _ -> error $ "wrong token " ++ (show (lookahead toks))
+    TIdent x -> (VarExpr x, accept toks)
+    _ -> error $ "wrong token " ++ show (lookahead toks)
 
 parseL :: [Token] -> (Expression, [Token])
 parseL [] = error "expected LetExpr instead of empty."
@@ -137,8 +137,12 @@ parseL toks =
     
     let 
         (ex1, toks')   = parseLet toks
-        (ex2, toks'')  = if (lookahead toks' == TAssign) then parseLet (accept toks') else error $ "In LetExpr expected =, instead of " ++ (show (lookahead toks'))
-        (ex3, toks''') = if (lookahead toks'' == TIn) then parseLet (accept toks'') else error $ "In LetExpr expected in, instead of " ++ (show (lookahead toks''))
+        (ex2, toks'')  = if lookahead toks' == TAssign 
+            then parseLet (accept toks') 
+            else error $ "In LetExpr expected =, instead of " ++ show (lookahead toks')
+        (ex3, toks''') = if lookahead toks'' == TIn 
+            then parseLet (accept toks'') 
+            else error $ "In LetExpr expected in, instead of " ++ show (lookahead toks'')
     in
         ( LetExpr ex1 ex2 ex3, toks''')   
 
@@ -146,8 +150,12 @@ parseIf :: [Token] -> (Expression, [Token])
 parseIf [] = error "expected IfExr instead of empty."
 parseIf toks = let 
         (ex1, ftoks)  = parseLet toks
-        (ex2, stoks)  = if lookahead ftoks == TThen then parseLet (accept ftoks) else error $ "In InExpr expected then , instead of " ++ (show (lookahead ftoks))
-        (ex3, ttoks)  = if lookahead stoks == TElse then parseLet (accept stoks) else error $ "In InExpr expected else , instead of " ++ (show (lookahead stoks))
+        (ex2, stoks)  = if lookahead ftoks == TThen 
+            then parseLet (accept ftoks) 
+            else error $ "In InExpr expected then , instead of " ++ show (lookahead ftoks)
+        (ex3, ttoks)  = if lookahead stoks == TElse 
+            then parseLet (accept stoks) 
+            else error $ "In InExpr expected else , instead of " ++ show (lookahead stoks)
     in
         ( IfExpr ex1 ex2 ex3, ttoks)         
 
@@ -158,11 +166,11 @@ parseDiff toks =
         TL -> let 
                  (lex, ltoks) = parseLet (accept toks) 
                  (commas, toks') = if lookahead ltoks == TCommas then  
-                                      (TCommas , (accept ltoks))  
-                                   else error $ "Expected , in DiffExpr, instead of " ++ (show (lookahead ltoks))
+                                      (TCommas , accept ltoks)  
+                                   else error $ "Expected , in DiffExpr, instead of " ++ show (lookahead ltoks)
                  (rex, rtoks) = parseLet toks'
              in
                  if lookahead rtoks == TR then  
                     (DiffExpr lex rex, accept rtoks)
-                 else error $ "expected ) in DiffExpr, instead of " ++ ( show (lookahead rtoks)) 
-        _ -> error $ "expected ( in DiffExpr, instead of " ++ ( show (lookahead toks))
+                 else error $ "expected ) in DiffExpr, instead of " ++  show (lookahead rtoks)
+        _ -> error $ "expected ( in DiffExpr, instead of " ++  show (lookahead toks)
