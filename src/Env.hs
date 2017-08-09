@@ -65,17 +65,28 @@ valueOf (LetExpr ex0 ex1 ex2) env =
          _ -> error "Expected VarExpr in LetExpr Expression."
 
 data Token = TNumber Int | TIdent String
-    | TEqual | TMinus
-    | TIn | TLet
-    | TIf | TThen | TElse
-    | TEmpty deriving (Show)
+    | TAssign | TMinus
+    | TIn | TLet | TZero
+    | TIf | TThen | TElse | TR | TL | TCommas
+    | TEmpty deriving (Show , Eq)
+
+lookahead :: [Token] -> Token
+lookahead [] = TEmpty
+lookahead (t:ts) = t
+
+accept :: [Token] -> [Token]
+accept [] = error "Nothing to accept"
+accept (t:ts) = ts
 
 tokenizer :: String -> [Token]
 tokenizer [] = []
-tokenizer (x:xs) | x == '=' = TEqual : tokenizer xs
+tokenizer (x:xs) | x == '=' = TAssign : tokenizer xs
                  | x == '-' = TMinus : tokenizer xs
                  | x == ' ' = tokenizer xs
                  | x == '\n' = tokenizer xs
+                 | x == '(' = TL : tokenizer xs
+                 | x == ')' = TR : tokenizer xs
+                 | x == ',' = TCommas : tokenizer xs
                  | otherwise = let t = getToken (x:xs)
                      in
                         strtoken (fst t) : tokenizer (snd t)
@@ -83,8 +94,11 @@ tokenizer (x:xs) | x == '=' = TEqual : tokenizer xs
 getToken :: String -> (String, String)
 getToken []     = ([], [])
 getToken (x:xs) | isDigit x = span isDigit (x:xs)
-    | isAlpha x = span isAlpha (x:xs)
+    | isAlpha x = span isZeroLetter (x:xs)
     | otherwise = (x:xs , [])
+
+isZeroLetter :: Char -> Bool
+isZeroLetter c = isAlpha c || c == '?' 
 
 multiCharToken :: String -> String -> (String, String)
 multiCharToken [] accu     = ([], accu)
@@ -103,5 +117,52 @@ strtoken (x:xs) | isDigit x = TNumber (read (x:xs))
         "then" -> TThen
         "else" -> TElse
         "let"  -> TLet
+        "zero?" -> TZero
         _      -> TIdent (x:xs)
     | otherwise = error "wrong token"
+
+parseLet :: [Token] -> (Expression, [Token])
+parseLet toks = case lookahead toks of
+    TNumber n -> (CNumber n, accept toks)
+    TMinus -> parseDiff (accept toks)
+    TZero -> parseLet (accept toks)
+    TIf -> parseIf (accept toks)
+    TLet -> parseL (accept toks)
+    TIdent x -> (VarExpr x, (accept toks))
+    _ -> error $ "wrong token " ++ (show (lookahead toks))
+
+parseL :: [Token] -> (Expression, [Token])
+parseL [] = error "expected LetExpr instead of empty."
+parseL toks = 
+    
+    let 
+        (ex1, toks')   = parseLet toks
+        (ex2, toks'')  = if (lookahead toks' == TAssign) then parseLet (accept toks') else error $ "In LetExpr expected =, instead of " ++ (show (lookahead toks'))
+        (ex3, toks''') = if (lookahead toks'' == TIn) then parseLet (accept toks'') else error $ "In LetExpr expected in, instead of " ++ (show (lookahead toks''))
+    in
+        ( LetExpr ex1 ex2 ex3, toks''')   
+
+parseIf :: [Token] -> (Expression, [Token])
+parseIf [] = error "expected IfExr instead of empty."
+parseIf toks = let 
+        (ex1, ftoks)  = parseLet toks
+        (ex2, stoks)  = if lookahead ftoks == TThen then parseLet (accept ftoks) else error $ "In InExpr expected then , instead of " ++ (show (lookahead ftoks))
+        (ex3, ttoks)  = if lookahead stoks == TElse then parseLet (accept stoks) else error $ "In InExpr expected else , instead of " ++ (show (lookahead stoks))
+    in
+        ( IfExpr ex1 ex2 ex3, ttoks)         
+
+parseDiff :: [Token] -> (Expression, [Token])
+parseDiff [] = error "expected DiffExr instead of empty."
+parseDiff toks =
+    case lookahead toks of
+        TL -> let 
+                 (lex, ltoks) = parseLet (accept toks) 
+                 (commas, toks') = if lookahead ltoks == TCommas then  
+                                      (TCommas , (accept ltoks))  
+                                   else error $ "Expected , in DiffExpr, instead of " ++ (show (lookahead ltoks))
+                 (rex, rtoks) = parseLet toks'
+             in
+                 if lookahead rtoks == TR then  
+                    (DiffExpr lex rex, accept rtoks)
+                 else error $ "expected ) in DiffExpr, instead of " ++ ( show (lookahead rtoks)) 
+        _ -> error $ "expected ( in DiffExpr, instead of " ++ ( show (lookahead toks))
