@@ -5,17 +5,18 @@ module Env (
 import           Data.Char
 import qualified Data.Text as T
 
-data ExpVal = ExpInt Int | ExpBool Bool
-data DenVal = DenInt Int | DenBool Bool
+data ExpVal = ExpInt Int | ExpBool Bool deriving (Show)
+data DenVal = DenInt Int | DenBool Bool deriving (Show)
 
 --data VarExpr = VarExpr String deriving (Show)
 --data VarExpr = Var String deriving (Show)
 data Expression  = CNumber Int |
-                   DiffExpr Expression Expression |
+                   BinExpr Expression Expression Token | 
                    IsZero Expression |
                    IfExpr Expression Expression Expression |
                    VarExpr String |
-                   LetExpr Expression  Expression Expression
+                   LetExpr Expression  Expression Expression | 
+                   Minus Int
                    deriving (Show)
 
 data Program = Expression deriving (Show)
@@ -54,8 +55,12 @@ expVal2Bool struct = case struct of
 
 valueOf :: Expression -> HENV -> ExpVal
 valueOf (CNumber n) env = numVal n
+valueOf (Minus n) env   = numVal $ -(n) 
 valueOf (VarExpr str) env = envApply env str
-valueOf (DiffExpr ex1 ex2)  env = numVal ( expVal2Num( valueOf ex1 env)  - expVal2Num( valueOf ex2 env) )
+valueOf (BinExpr ex1 ex2 op) env = case op of
+    TAdd -> numVal ( expVal2Num( valueOf ex1 env)  + expVal2Num( valueOf ex2 env) )
+    TMinus -> numVal ( expVal2Num( valueOf ex1 env)  - expVal2Num( valueOf ex2 env) )
+    TMul ->   numVal ( expVal2Num( valueOf ex1 env)  * expVal2Num( valueOf ex2 env) )
 valueOf (IsZero exp1) env = if expVal2Num (valueOf exp1 env) == 0 then ExpBool True else ExpBool False
 valueOf (IfExpr ex1 ex2 ex3) env  = if expVal2Bool (valueOf ex1 env) then valueOf ex2 env else valueOf ex3 env
 valueOf (LetExpr ex0 ex1 ex2) env =
@@ -65,9 +70,10 @@ valueOf (LetExpr ex0 ex1 ex2) env =
          _ -> error "Expected VarExpr in LetExpr Expression."
 
 data Token = TNumber Int | TIdent String
-    | TAssign | TMinus
+    | TAssign | TMinus | TAdd | TMul
     | TIn | TLet | TZero
     | TIf | TThen | TElse | TR | TL | TCommas
+    | TNeg Int
     | TEmpty deriving (Show , Eq)
 
 lookahead :: [Token] -> Token
@@ -75,13 +81,16 @@ lookahead [] = TEmpty
 lookahead (t:ts) = t
 
 accept :: [Token] -> [Token]
-accept [] = error "Nothing to accept"
+--accept [] = error "Nothing to accept"
+accept [] = []
 accept (t:ts) = ts
 
 tokenizer :: String -> [Token]
 tokenizer [] = []
 tokenizer (x:xs) | x == '=' = TAssign : tokenizer xs
                  | x == '-' = TMinus : tokenizer xs
+                 | x == '+' = TAdd : tokenizer xs
+                 | x == '*' = TMul : tokenizer xs
                  | x == ' ' = tokenizer xs
                  | x == '\n' = tokenizer xs
                  | x == '(' = TL : tokenizer xs
@@ -121,10 +130,45 @@ strtoken (x:xs) | isDigit x = TNumber (read (x:xs))
         _      -> TIdent (x:xs)
     | otherwise = error "wrong token"
 
+parseBin :: [Token] -> (Expression, [Token])
+parseBin (TMinus:(TNumber n) : toks) = ( (Minus n), toks)
+parseBin (TAdd:(TNumber n): toks) = (CNumber n, toks)
+parseBin (t:toks) = parseBinExpr toks t
+
+
+{-
+parseMinus :: [Token] -> (Expression, [Token])
+parseMinus (TMinus:(TNumber n) : toks) = ( (Minus n), toks)
+parseMinus (TMinus: toks)  = parseDiff toks
+
+parseAdd :: [Token] -> (Expression, [Token])
+parseAdd (TAdd:(TNumber n): toks) = (CNumber n, toks)
+parseAdd toks = parseAddition toks
+
+-}
+parseBinExpr :: [Token] -> Token -> (Expression, [Token])
+parseBinExpr [] op = error "expected BinExpr instead of empty."
+parseBinExpr toks op =
+     case lookahead toks of
+         TL -> let
+                  (lex, ltoks) = parseLet (accept toks)
+                  (commas, toks') = if lookahead ltoks == TCommas then
+                                       (TCommas , (accept ltoks))
+                                    else error $ "Expected , in BinExpr, instead of " ++ (show (lookahead ltoks))
+                  (rex, rtoks) = parseLet toks'
+              in
+                  if lookahead rtoks == TR then
+                     (BinExpr lex rex op, accept rtoks)
+                  else error $ "expected ) in BinExpr, instead of " ++ ( show (lookahead rtoks))
+         _ -> error $ "expected ( in BinExpr, instead of " ++ ( show (lookahead toks))
+
+
 parseLet :: [Token] -> (Expression, [Token])
 parseLet toks = case lookahead toks of
     TNumber n -> (CNumber n, accept toks)
-    TMinus -> parseDiff (accept toks)
+    TMinus -> parseBin toks 
+    TAdd -> parseBin toks
+    TMul -> parseBin toks
     TZero -> parseLet (accept toks)
     TIf -> parseIf (accept toks)
     TLet -> parseL (accept toks)
@@ -150,7 +194,7 @@ parseIf toks = let
         (ex3, ttoks)  = if lookahead stoks == TElse then parseLet (accept stoks) else error $ "In InExpr expected else , instead of " ++ (show (lookahead stoks))
     in
         ( IfExpr ex1 ex2 ex3, ttoks)         
-
+{-
 parseDiff :: [Token] -> (Expression, [Token])
 parseDiff [] = error "expected DiffExr instead of empty."
 parseDiff toks =
@@ -165,4 +209,6 @@ parseDiff toks =
                  if lookahead rtoks == TR then  
                     (DiffExpr lex rex, accept rtoks)
                  else error $ "expected ) in DiffExpr, instead of " ++ ( show (lookahead rtoks)) 
-        _ -> error $ "expected ( in DiffExpr, instead of " ++ ( show (lookahead toks))
+         _  -> error $ "expected ( in DiffExpr, instead of " ++ ( show (lookahead toks))
+
+-}
