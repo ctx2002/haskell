@@ -1,7 +1,9 @@
 module Lib
     (someFunc 
     ) where
-
+    
+import Data.Char
+import qualified Data.Text as T
 import Data.Tree
 
 someFunc :: IO()
@@ -222,3 +224,22 @@ big2List BigEmpty = []
 big2List (BigCon r q) = r : big2List q    
 --myWrapSingle :: a -> [a]
 --myWrapSingle x = [x]
+
+modernise :: String -> String
+modernise [] = []
+modernise (x:str) = let part = span isAlpha (x:str)
+    in
+        if x == ' ' then x:modernise str else
+        ((toUpper (head $ fst part) ): (tail $ fst part)) ++ (modernise $ snd part)
+
+-- how to use Text package.
+moderniseT :: T.Text -> T.Text
+moderniseT tx = T.unwords (  moderniseT' (T.split (==' ') tx) )
+
+moderniseT' :: [T.Text] ->[T.Text]
+moderniseT' [] = []
+moderniseT' (x:xs) =
+    let myVal = T.uncons x {- uncons return a maybe tuple -}
+    in  {- show how to use maybe function -}
+        (T.cons (toUpper $ maybe ' ' fst myVal) (maybe (T.pack "") snd myVal)) : (moderniseT' xs)
+
