@@ -5,6 +5,7 @@ module Lib
 import Data.Char
 import qualified Data.Text as T
 import Data.Tree
+import Data.Maybe
 
 someFunc :: IO()
 someFunc = putStrLn "hello, world"
@@ -239,7 +240,8 @@ moderniseT tx = T.unwords (  moderniseT' (T.split (==' ') tx) )
 moderniseT' :: [T.Text] ->[T.Text]
 moderniseT' [] = []
 moderniseT' (x:xs) =
-    let myVal = T.uncons x {- uncons return a maybe tuple -}
-    in  {- show how to use maybe function -}
-        (T.cons (toUpper $ maybe ' ' fst myVal) (maybe (T.pack "") snd myVal)) : (moderniseT' xs)
+    --let myVal = T.uncons x
+    let (firstChar, restText) = Data.Maybe.fromMaybe (' ', (T.pack "")) (T.uncons x)
+    in
+        (T.cons (toUpper firstChar) restText): (moderniseT' xs)
 
