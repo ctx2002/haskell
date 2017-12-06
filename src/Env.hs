@@ -86,12 +86,6 @@ getToken (x:xs) | isDigit x = span isDigit (x:xs)
     | isAlpha x = span isAlpha (x:xs)
     | otherwise = (x:xs , [])
 
-multiCharToken :: String -> String -> (String, String)
-multiCharToken [] accu     = ([], accu)
-multiCharToken (x:xs) accu | isDigit x = multiCharToken xs (accu ++ [x])
-    | isAlpha x = multiCharToken xs (accu ++ [x])
-    | otherwise = (xs, accu)
-
 
 
 strtoken :: String -> Token

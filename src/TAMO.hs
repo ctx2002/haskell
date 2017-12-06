@@ -44,6 +44,7 @@ contradiction3 bf = not (or [bf p q r | p<-[True, False], q<-[True,False],r<-[Tr
 
 -- f1 p q = (p ==> (not q)) <=> (q ==> (not p))
 -- deM1 p q = (not (p && q))  <=> (not p) || (not q)
+-- f1 p q = (((p ==> q) ==> p) ==> p)
 
 valid3 :: (Bool -> Bool -> Bool -> Bool) -> Bool
 valid3 bf =
