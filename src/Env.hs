@@ -106,8 +106,6 @@ getToken (x:xs) | isDigit x = span isDigit (x:xs)
     | isAlpha x = span isZeroLetter (x:xs)
     | otherwise = (x:xs , [])
 
-<<<<<<< HEAD
-=======
 isZeroLetter :: Char -> Bool
 isZeroLetter c = isAlpha c || c == '?' 
 
@@ -117,7 +115,6 @@ multiCharToken (x:xs) accu | isDigit x = multiCharToken xs (accu ++ [x])
     | isAlpha x = multiCharToken xs (accu ++ [x])
     | otherwise = (xs, accu)
 
->>>>>>> 21f428a66d7d27c5f8a5efb0001eacf62d5565cc
 
 
 strtoken :: String -> Token
