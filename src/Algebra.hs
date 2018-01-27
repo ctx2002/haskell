@@ -1,6 +1,7 @@
 module Algebra () where
     poly :: [(Double, Double)] -> Double
     -- | uncurry converts a curried function to a function on pairs
+
     poly = foldr ((+).uncurry (*)) 0
 
     {-
@@ -19,3 +20,8 @@ module Algebra () where
         poly = foldr ((+).uncurry (*)) 0
 
     -}
+    -- polynomia [(2,0), (3,1),(0,2), (4,3)] 7
+    -- is 2x^0 + 3x^1 + 0x^2 + 4x^3, x is 7
+    polynomia :: [(Double , Integer)] -> Double -> Double
+    polynomia coefficents variable = poly $ map (\x -> (fst x , (^) variable (snd x)  )) coefficents
+    -- polynomia coefficents variable = map (\x -> (fst x , (**) variable (snd x))) coefficents
