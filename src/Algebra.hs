@@ -25,3 +25,18 @@ module Algebra () where
     polynomia :: [(Double , Integer)] -> Double -> Double
     polynomia coefficents variable = poly $ map (\x -> (fst x , (^) variable (snd x)  )) coefficents
     -- polynomia coefficents variable = map (\x -> (fst x , (**) variable (snd x))) coefficents
+
+    dotProduct :: [(Double, Double)] -> Double
+    dotProduct = foldr ((+).uncurry (*)) 0
+    {-
+     for math dot product like (1,2,3) x (1,2,3) = 14
+     but for this procudure, we use this form to represent 2 vectors dot production
+     [(x1,y1), (x2,y2), (x3,y3)], so to use this function, so should do zip first.
+
+       says, we want to add [1,2,3] [1,2,3], first zip [1,2,3] [1,2,3], get result
+       [(1,1),(2,2), (3,3)], then feed this result to dotProduct
+     -}
+
+    betterDotProduct :: [Double] -> [Double] -> Double
+    betterDotProduct  x y = dotProduct  (zip x y)
+
