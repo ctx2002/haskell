@@ -99,12 +99,10 @@ module Algebra () where
     vector2Matrix :: [Double] -> [[Double]]
     vector2Matrix [] = []
     vector2Matrix v  = map (: []) v
-
+    {-
+        matrixT [[2,1,0],[1,3,5]]
+    -}
     matrixT :: [[Double]] -> [[Double]]
-    matrixT [] = []
-    matrixT a  = mergeMatrix (vector2Matrix (head a))  (matrixT (tail a))
-
-    mergeMatrix :: [[Double]] -> [[Double]] -> [[Double]]
-    mergeMatrix [] [] = []
-    mergeMatrix x  [] = x
-    mergeMatrix a b   = [(head a) ++ (head b)] ++ mergeMatrix (tail a) (tail b)
+    matrixT []     = []
+    matrixT ([]:_) = []
+    matrixT x      = map head x : matrixT (map tail x)
