@@ -1,4 +1,7 @@
 module Algebra () where
+    {- located vector-}
+    data LocatedVector = LocatedV (Double, Double) (Double, Double)
+
     poly :: [(Double, Double)] -> Double
     -- | uncurry converts a curried function to a function on pairs
 
@@ -40,3 +43,68 @@ module Algebra () where
     betterDotProduct :: [Double] -> [Double] -> Double
     betterDotProduct  x y = dotProduct  (zip x y)
 
+    dotProductPower :: [Double] -> Double
+    dotProductPower x = betterDotProduct x x
+
+    isPerpendicular :: [Double] -> [Double] -> Bool
+    isPerpendicular x y = betterDotProduct x y == 0
+
+    norm :: [Double] -> Double
+    norm x  = sqrt $ betterDotProduct x x
+
+
+
+    {- some function related to vector -- serg lang -- intro to algebra-}
+    locatedVectorMinus :: [Double] -> [Double] -> [Double]
+    locatedVectorMinus start end = zipWith (-) end start
+
+    {- if 2 located vector is equivalent see serg lang - intro to algebra page 9 -}
+    locatedVectorIsEquivalent :: ([Double], [Double]) -> ([Double], [Double]) -> Bool
+    locatedVectorIsEquivalent first second =  uncurry locatedVectorMinus first  == uncurry locatedVectorMinus second
+    {- scalar product-}
+    vectorScalarProduct :: [Double] -> [Double] -> Double
+    vectorScalarProduct f s = sum $ zipWith (*) f s
+
+    vectorAddition :: [Double] -> [Double] -> [Double]
+    vectorAddition = zipWith (+)
+
+    vectorMinus :: [Double] -> [Double] -> [Double]
+    vectorMinus = zipWith (-)
+
+    vectorMultilcateNumber :: Double -> [Double] -> [Double]
+    vectorMultilcateNumber n = map (*n)
+
+    verctorIsPerpendicular :: [Double] -> [Double] -> Bool
+    verctorIsPerpendicular f s = 0 == vectorScalarProduct f s
+
+    vectorCosin :: [Double] -> [Double] -> Double
+    vectorCosin a b = (/) (vectorScalarProduct a b) ((*) (norm a) (norm b))
+
+    vectorProjection :: [Double] -> [Double] -> Double
+    vectorProjection a b = (/) (vectorScalarProduct a b) (vectorScalarProduct b b)
+
+    matrixAdd :: [[Double]] -> [[Double]] -> [[Double]]
+    matrixAdd [] [] = []
+    matrixAdd a b = vectorAddition (head a) (head b) : matrixAdd (tail a) (tail b)
+
+    numberTimeMatrix :: Double -> [[Double]] -> [[Double]]
+    numberTimeMatrix n [] = []
+    numberTimeMatrix n m  = map (vectorMultilcateNumber n)  m
+    {-
+        matrixAdd [[1,2,3], [-1,0,2]] $ matrixAdditiveInverse [[1,2,3], [-1,0,2]]
+    -}
+    matrixAdditiveInverse :: [[Double]] -> [[Double]]
+    matrixAdditiveInverse = numberTimeMatrix (-1)
+
+    vector2Matrix :: [Double] -> [[Double]]
+    vector2Matrix [] = []
+    vector2Matrix v  = map (: []) v
+
+    matrixT :: [[Double]] -> [[Double]]
+    matrixT [] = []
+    matrixT a  = mergeMatrix (vector2Matrix (head a))  (matrixT (tail a))
+
+    mergeMatrix :: [[Double]] -> [[Double]] -> [[Double]]
+    mergeMatrix [] [] = []
+    mergeMatrix x  [] = x
+    mergeMatrix a b   = [(head a) ++ (head b)] ++ mergeMatrix (tail a) (tail b)
