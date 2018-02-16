@@ -1,4 +1,5 @@
 module Algebra () where
+
     {- located vector-}
     data LocatedVector = LocatedV (Double, Double) (Double, Double)
 
@@ -106,3 +107,15 @@ module Algebra () where
     matrixT []     = []
     matrixT ([]:_) = []
     matrixT x      = map head x : matrixT (map tail x)
+
+    matrixMultiplication :: [[Double]] -> [[Double]] -> [[Double]]
+    matrixMultiplication a b  = matrixMultiplicationS a (matrixT b)
+
+    matrixMultiplicationS :: [[Double]] -> [[Double]] -> [[Double]]
+    matrixMultiplicationS [] [] = []
+    matrixMultiplicationS [] b  = []
+    matrixMultiplicationS a b = matrixMultiplicationT (head a) b :  matrixMultiplicationS (tail a) b
+
+    matrixMultiplicationT :: [Double] -> [[Double]] -> [Double]
+    matrixMultiplicationT a [] = []
+    matrixMultiplicationT a b = vectorScalarProduct a (head b) : matrixMultiplicationT a (tail b)
