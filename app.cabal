@@ -29,4 +29,4 @@ executable command_line
   build-depends:
       base >= 4 && <= 5,
       app,
-      containers,text
+      containers,text, vector

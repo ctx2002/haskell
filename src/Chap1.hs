@@ -98,3 +98,11 @@ module Chap1(square) where
           | otherwise = fib (n - 2) + fib (n-1)
     cabs :: Integer -> Integer
     cabs n = if n < 0 then n * (-1) else n
+
+    bbi :: Float  -> Float
+    bbi 0 = 0
+    bbi n = (1 + (1/n)) ** n
+
+    aai :: Float -> Float
+    aai 0 = 0
+    aai n = (1 + (1/n)) ** (n+1)
