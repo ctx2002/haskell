@@ -98,3 +98,14 @@ triArea n = triAreaZ n 1
             in
                 (((left + right)*height) / 2) : triAreaZ n (top+1)
 
+
+termS :: Integer -> Double
+termS n = 1 / fromIntegral((3 * n) + 1 )
+
+termB :: Integer -> Double
+termB n = fromIntegral((3 * n) + 1 ) / fromIntegral((4 * n) - 1 ) 
+
+termRange :: (Integer -> Double) -> Integer -> [Double]
+termRange f 0 = []
+termRange f end = if end < 0 then error "end is a negative number."
+    else f end : termRange f (end - 1)

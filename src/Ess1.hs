@@ -50,3 +50,31 @@ module Ess1 where
 
     removeFirstWrap :: (Eq a) => a -> [a] -> [a]
     removeFirstWrap x y = removeFirst x y []
+
+    {-
+        mysplitAt list position
+        input: mysplitAt [] 0
+        output: ([],[])
+
+        input: mysplitAt [1] 0
+        output: ([1], [])
+
+        input mysplitAt[1] 2
+        output: ([1], [])
+
+        input: mysplitAt [1,2,3] -1
+        output: ([1,2,3], [])
+
+        input: mysplitAt [1,2,3] 0
+        output: ([1],[2,3])
+    -}
+
+    mysplitAt :: [a] -> Integer -> ([a], [a])
+    mysplitAt [] n = ([],[])
+    mysplitAt (x:xs) n = if n < 0 then (x:xs, []) else mysplitAt' (x:xs) n []
+
+    mysplitAt' :: [a] -> Integer -> [a] -> ([a], [a])
+    mysplitAt' [] n accu = (accu, [])
+    mysplitAt' (x:xs) n accu = if n == 0 then (accu++[x], xs) else mysplitAt' xs (n-1) (x:accu)
+
+
