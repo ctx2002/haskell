@@ -39,5 +39,15 @@ pvalue vf (Imply p q) = pvalue vf (Not p) || pvalue vf q
 pvalue vf (And p q)   = pvalue vf q && pvalue vf p
 pvalue vf (Or p q)    = pvalue vf q || pvalue vf p
 
+{-
+    Usage:
+    
+    Atom '4'
+
+    And (Atom '4') (Atom '5')
+
+    pvalue isDigit (And (Atom '4') (Atom '5'))
+-}
+
 
 
