@@ -2,6 +2,8 @@ module Logic (
 
     ) where
 
+import qualified Data.Char as CH
+
 signedF :: Bool -> Bool
 signedF  = not
 
@@ -9,20 +11,20 @@ signedT :: Bool -> Bool
 signedT x = x
 
 type Var = String
-data Prop a = Atom Var | Not (Prop a) 
+data Prop a = Atom a | Not (Prop a) 
                        | Imply (Prop a)  (Prop a) 
                        | And (Prop a) (Prop a)
                        | Or  (Prop a) (Prop a)
 
 
-instance Show (Prop a) where
-    show (Atom p) = p
+instance (Show a) => Show (Prop a) where
+    show (Atom p) = show p
     show (Not prop) = "(-"++ show prop  ++")"
     show (Imply p1 p2) = "(" ++ show p1 ++ " => " ++ show p2 ++ ")"
     show (And p1 p2) = "(" ++ show p1 ++ " ^ " ++ show p2 ++ ")"
     show (Or p1 p2) = "(" ++ show p1 ++ " | " ++ show p2 ++ ")"
 
-instance Eq (Prop a) where
+instance (Ord a) =>Eq (Prop a) where
     (Atom p) == (Atom q) = p == q
     (Not p)  == (Not q)  = p == q
     (Imply p q) == (Imply p1 q1) = (p == p1) && (q == q1)
@@ -30,7 +32,7 @@ instance Eq (Prop a) where
     (Or p q) == (Or p1 q1) = (p == p1) || (q == q1)
     _ == _ = False 
 
-pvalue :: (t -> Bool) -> Prop t -> Bool
+pvalue :: (a -> Bool) -> Prop a -> Bool
 pvalue vf (Atom p) = vf p
 pvalue vf (Not p)  = not (pvalue vf p)
 pvalue vf (Imply p q) = pvalue vf (Not p) || pvalue vf q
