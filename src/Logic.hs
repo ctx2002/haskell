@@ -41,12 +41,14 @@ pvalue vf (Or p q)    = pvalue vf q || pvalue vf p
 
 {-
     Usage:
-    
+
     Atom '4'
 
     And (Atom '4') (Atom '5')
 
     pvalue isDigit (And (Atom '4') (Atom '5'))
+
+    pvalue isDigit $ Imply (And (Atom 'c') (Atom 'd')) (Not (Or (Not (Atom 'c')) (Not (Atom 'd'))))
 -}
 
 
